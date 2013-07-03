@@ -1,0 +1,26 @@
+# Maintainer: Joseph Lehner <joseph.c.lehner@gmail.com>
+pkgname=swclock
+pkgver=1.6
+pkgrel=1
+epoch=
+pkgdesc="Fake hwclock for systems without an RTC"
+arch=(any)
+url=
+license=('GPL')
+source=(swclock swclock.service swclock.cron)
+md5sums=('08dcf5c480bc72e8a63a645cf480dde1'
+         '051a7ad4ec8242798041d2708909fc4a'
+         '040fe1a4853780da7a74ffcf592a53a0')
+
+build() {
+  :
+}
+
+
+package() {
+  install -m 755 -D swclock "$pkgdir/"usr/bin/swclock
+  install -m 644 -D swclock.service "$pkgdir/"usr/lib/systemd/system/swclock.service
+  install -m 750 -D swclock.cron "$pkgdir/"etc/cron.hourly/swclock 
+}
+
+# vim:set ts=2 sw=2 et:

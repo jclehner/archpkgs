@@ -1,0 +1,11 @@
+[Unit]
+Description=Fake hwclock for systems without an RTC
+
+[Service]
+ExecStart=/usr/bin/swclock restore
+ExecStop=/usr/bin/swclock save
+Type=oneshot 
+RemainAfterExit=yes
+
+[Install]
+WantedBy=basic.target
