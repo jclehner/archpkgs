@@ -1,0 +1,9 @@
+[Unit]
+Description=Shairport AirPlay(tm) receiver
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/shairport-wrapper --daemon
+
+[Install]
+WantedBy=multi-user.target

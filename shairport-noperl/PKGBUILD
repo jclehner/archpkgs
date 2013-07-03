@@ -1,0 +1,60 @@
+# Maintainer: Joseph C. Lehner <joseph.c.lehner@gmail.com>
+
+_gitrev="b61faf1edc7823738e508519e6636fd4506774f3"
+_giturl="https://github.com/abrasive/shairport"
+
+pkgname=shairport-noperl
+pkgver=20130508
+pkgrel=1
+epoch=
+pkgdesc="An AirPlay receiver"
+arch=(armv6h i686 x86_64)
+url="$_giturl"
+license=('shairport')
+groups=()
+depends=(avahi libao openssl)
+makedepends=(libao openssl)
+checkdepends=()
+optdepends=()
+provides=(shairport)
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=install
+changelog=
+
+source=($_giturl/archive/$_gitrev.zip shairport-wrapper 
+        shairport.service fix-uninitialized-addrinfo.patch)
+#source=($pkgname-$pkgver.zip shairport.service
+#        fix-uninitialized-addrinfo.patch)
+noextract=()
+
+### beg checksum
+md5sums=('384d0fa58cffe15e1462b001d7e94e90'
+         '260f77c01d297538605d6f8ea5972ae7'
+         'ee2d8efdcfdc70cb8eae35340be654ff'
+         '8fc8cbb8aabab0e9444dd1096fa38581')
+### end checksum
+
+#prepare() {
+#  cd "$srcdir/shairport-master"
+#  sed -i -e 's:^prefix=.*$:prefix=/usr:' Makefile
+#}
+
+build() {
+  cd "$srcdir/shairport-$_gitrev"
+  sed -i -e 's:^prefix=.*$:prefix=/usr:' Makefile
+  patch -p0 < ../fix-uninitialized-addrinfo.patch
+  make
+}
+
+package() {
+  cd "$srcdir/shairport-$_gitrev"
+  install -m 755 -D shairport "$pkgdir/"usr/bin/shairport
+  install -m 755 -D hairtunes "$pkgdir/"usr/bin/hairtunes
+  install -m 755 -D ../shairport-wrapper "$pkgdir/"usr/bin/shairport-wrapper
+  install -m 644 -D ../shairport.service "$pkgdir/"usr/lib/systemd/system/shairport.service
+}
+
+# vim:set ts=2 sw=2 et:

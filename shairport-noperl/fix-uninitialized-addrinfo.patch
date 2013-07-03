@@ -1,0 +1,11 @@
+--- shairport.c	2013-03-20 00:23:31.570248540 +0100
++++ shairport.c	2013-03-19 23:48:33.589927879 +0100
+@@ -106,7 +106,7 @@
+   char tServerName[56] = "ShairPort";
+   char tPassword[56] = "";
+ 
+-  struct addrinfo *tAddrInfo;
++  struct addrinfo *tAddrInfo = NULL;
+   int  tSimLevel = 0;
+   int  tUseKnownHWID = FALSE;
+   int  tDaemonize = FALSE;

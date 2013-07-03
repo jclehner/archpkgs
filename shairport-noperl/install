@@ -1,0 +1,14 @@
+post_install()
+{
+	getent user shairport &>/dev/null || useradd -r shairport -d / -G audio \
+		-s /bin/false >/dev/null
+
+	true
+}
+
+post_remove()
+{
+	userdel shairport &>/dev/null
+
+	true
+}

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+DEFAULT_CONFIG=/etc/shairport.conf
+
+doexec() {
+	if [ $(id -u) -eq 0 ]; then
+		echo "Switching to user ${SHAIRPORT_USER}"
+		exec su ${SHAIRPORT_USER} -s /bin/sh -c "$@"
+	else
+		exec "$@"
+	fi
+}
+
+case "$1" in
+	-h|--help)
+		echo >&2 "usage: shairport-wrapper [CONFIG FILE]"
+		echo >&2
+		echo >&2 "Config file defaults to ${DEFAULT_CONFIG}"
+		exit 0
+	;;
+	--version)
+		echo "shairport-wrapper 0.1"
+		exit 0
+	;;
+	-d|--daemon)
+		DAEMON="-d"
+		shift
+	;;
+esac
+
+CONFIG=${1:-$DEFAULT_CONFIG}
+
+if [ ! -f "${CONFIG}" ]; then
+	if [ "${CONFIG}" != "${DEFAULT_CONFIG}" ]; then
+		echo >&2 "Config file not found: ${CONFIG}"
+		exit 1
+	fi
+else
+	source "${CONFIG}" || exit 1
+fi
+
+AIRPLAY_NAME="${AIRPLAY_NAME:-ShairPort}"
+SERVER_PORT=${SERVER_PORT:-5002}
+BUFFER_FRAMES=${BUFFER_FRAMES:-31}
+SHAIRPORT_USER=${SHAIRPORT_USER:-shairport}
+
+doexec "/usr/bin/shairport -a '${AIRPLAY_NAME}' -b ${BUFFER_FRAMES} \
+	-o ${SERVER_PORT} ${DAEMON} ${SHAIRPORT_OPTS}" 
