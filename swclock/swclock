@@ -1,0 +1,54 @@
+#!/bin/sh
+
+CMDLINE_TIME="rtc-fake.time"
+STATE=/var/lib/swclock.state
+
+was_time_set_by_hctosys() {
+	for f in /sys/class/rtc/*/hctosys; do
+		[[ ! -f "$f" ]] && continue
+
+		if [[ $(<$f) == "1" ]]; then
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+try_set_time_via_boot_cmdline() {
+	mount /boot &> /dev/null
+	[[ ! -f /boot/cmdline.txt ]] && return 1
+
+	local now=$(date +%s)
+
+	if ! grep -q "${CMDLINE_TIME}=" /boot/cmdline.txt; then
+		echo "${CMDLINE_TIME}=$now" >> /boot/cmdline.txt
+	else
+		sed -i -E "s/${CMDLINE_TIME}=[[:digit:]]+/${CMDLINE_TIME}=$now/" /boot/cmdline.txt
+	fi
+}
+
+case "$1" in
+	save)
+		date +%m%d%H%M%Y.%S > "$STATE" || exit 1
+		try_set_time_via_boot_cmdline
+		exit 0
+		;;
+	restore)
+		if was_time_set_by_hctosys; then
+			echo "Time already set by RTC"
+			exit 0
+		fi
+
+		if [ -f "$STATE" ]; then
+			date `cat "$STATE"` >> /dev/null || exit 1
+			exit 0
+		else
+			echo >&2 "Cannot restore time: missing state file"	
+		fi
+		;;
+	*)
+		echo >&2 "usage: $0 {save|restore}"
+esac
+
+exit 1
